@@ -1,0 +1,32 @@
+from Bio import SeqIO
+
+for record in SeqIO.parse("hbb.fasta", "fasta"):
+    seq = str(record.seq)
+
+    # Step 2: Calculate GC content
+    gc_count = seq.count("G") + seq.count("C")
+    gc_content = (gc_count / len(seq)) * 100
+
+    print("Analysis of", record.id)
+    print("--------------------------------------------------")
+    print(f"Sequence length: {len(seq)} bases")
+    print(f"GC content: {gc_content:.2f}%")
+
+    # Step 3: ORF finding (simplified)
+    start_codon = "ATG"
+    stop_codons = ["TAA", "TAG", "TGA"]
+
+    orfs = []
+    for i in range(len(seq)):
+        if seq[i:i+3] == start_codon:
+            for j in range(i+3, len(seq), 3):
+                codon = seq[j:j+3]
+                if codon in stop_codons:
+                    orf = seq[i:j+3]
+                    orfs.append(orf)
+                    break
+
+    print("\nPredicted ORFs:")
+    for idx, orf in enumerate(orfs[:5], start=1):  # show first 5
+        print(f"ORF {idx}: length {len(orf)} bases, starts with {orf[:6]}...")
+    print("\n" + "="*50 + "\n")
